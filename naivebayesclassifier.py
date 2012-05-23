@@ -85,8 +85,9 @@ class NaiveBayesClassifier:
             asum = 0
             for i in final_p:
                 asum += final_p[i]
-            for i in final_p:
-                final_p[i] /= asum
+            if asum:
+                for i in final_p:
+                    final_p[i] /= asum
         if len(final_p) >= 2:
             ans = reduce(lambda x, y: (x[1] > y[1]) and x or y, \
                 map(lambda t: (t, final_p[t]), final_p) \
