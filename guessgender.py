@@ -18,6 +18,6 @@ while True:
         if final_p[i] > best_p:
             best_p = final_p[i]
             best_ans = i
-    print status[best_ans]
+    print status[best_ans], best_p
     if name == 'exit':
         break
