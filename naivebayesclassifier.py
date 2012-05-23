@@ -29,8 +29,11 @@ class NaiveBayesClassifier:
     def _read_from_file(self):
         f = open(self.datapath, 'rb')
         self._training_data = cPickle.loads(f.read())
-        self._training_data['feature_when_class'] = self._training_data['feature_when_gender']
-        self._training_data['class'] = self._training_data['gender']
+        try:
+            self._training_data['feature_when_class'] = self._training_data['feature_when_gender']
+            self._training_data['class'] = self._training_data['gender']
+        except:
+            pass
         f.close()
 
     def train(self, feature, a_class):
@@ -69,8 +72,14 @@ class NaiveBayesClassifier:
                 p_f_c = 0
             p_c = [f['class'][aclass] / sum([f['class'][c] for c in f['class']]) \
                     , 1 / len(f['class'].keys())][force_class_average]
-            p_f = f['feature'][feature] / sum([f['feature'][af] for af in f['feature']])
-            p = p_f_c * p_c / p_f
+            try:
+                p_f = f['feature'][feature] / sum([f['feature'][af] for af in f['feature']])
+            except KeyError:
+                p_f = 0
+            if p_f == 0:
+                p = 0
+            else:
+                p = p_f_c * p_c / p_f
             final_p[aclass] = p
         if force_class_average:
             asum = 0
@@ -78,8 +87,13 @@ class NaiveBayesClassifier:
                 asum += final_p[i]
             for i in final_p:
                 final_p[i] /= asum
-        ans = reduce(lambda x, y: (x[1] > y[1]) and x or y, \
+        if len(final_p) >= 2:
+            ans = reduce(lambda x, y: (x[1] > y[1]) and x or y, \
                 map(lambda t: (t, final_p[t]), final_p) \
                 )
+        elif len(final_p) == 1:
+            ans = final_p.keys()[0]
+        else:
+            ans = None
         return (ans, final_p)
 
